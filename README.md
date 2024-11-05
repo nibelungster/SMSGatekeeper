@@ -7,21 +7,21 @@ How to start:
    
 <img width="752" alt="image" src="https://github.com/user-attachments/assets/217cb545-c2eb-487e-ad1a-bb068c4e6632">
 
-4. Run SMSProcessor.exe
-5. Be sure proper queue has been registered in RabbitMQ
+3. Run SMSProcessor.exe
+4. Be sure proper queue has been registered in RabbitMQ
 
 <img width="593" alt="image" src="https://github.com/user-attachments/assets/ad7e0c8d-0340-4c54-b8c4-4eadf705cb71">
 
    
-7. Run Fake.Senders.exe. You will be proposed to type number of messages you'd like to send.
+5. Run Fake.Senders.exe. You will be proposed to type number of messages you'd like to send.
    
    <img width="577" alt="image" src="https://github.com/user-attachments/assets/5384dc05-ea9f-4562-ad18-f3752f83476c">
    
-8. Then navigate back to the SMSProcessor console. It should looks like this
+6. Then navigate back to the SMSProcessor console. It should looks like this
    
    <img width="867" alt="image" src="https://github.com/user-attachments/assets/8e139f84-a960-4a7d-8b2e-2286acb55b1c">
    
-9. If there are now available slots for sending you should be experienced with this stuff
+7. If there are now available slots for sending you should be experienced with this stuff
 
    <img width="505" alt="image" src="https://github.com/user-attachments/assets/c0830daf-15a3-4b0e-bbab-5d5dd9bacb52">
 
