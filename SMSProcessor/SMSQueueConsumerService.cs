@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using Microsoft.AspNetCore.Connections;
 using Gatekeeper.Core.Interfaces;
+using Core.Interfaces;
+using Core.Models;
 
 namespace SMSGatekeeper
 {
@@ -15,6 +17,7 @@ namespace SMSGatekeeper
 		private IConnection _connection;
 		private IModel _channel;
 		private IDispatcher _dispatcher;
+		private IStatisticRepository _statisticRepository;
 		private string _queueName;
 		public IServiceProvider Services { get; }
 
@@ -26,6 +29,9 @@ namespace SMSGatekeeper
 				_dispatcher =
 					scope.ServiceProvider
 						.GetRequiredService<IDispatcher>();
+				_statisticRepository =
+					scope.ServiceProvider
+						.GetRequiredService<IStatisticRepository>();
 			}
 			_logger = loggerFactory.CreateLogger<SMSQueueConsumerService>();
 		}
@@ -65,24 +71,35 @@ namespace SMSGatekeeper
 				var consumer = new AsyncEventingBasicConsumer(channel);
 				consumer.Received += async (ch, message) =>
 					{
-						// received body
 						var content = Encoding.UTF8.GetString(message.Body.ToArray());
 						var phoneNumber = _dispatcher.GetAvailableNumber();
 						if (String.IsNullOrEmpty(phoneNumber))
 						{
-							Console.WriteLine($"[-] CANT PROCESS {content} consumer! No available numbers.");
-							channel.BasicNack(deliveryTag: message.DeliveryTag, multiple: false, true);
+							await MoveBackToQueue(channel, message, content);
 						}
 						else
 						{
-							await HandleReceivedMessageAsync(content, phoneNumber);
-							channel.BasicAck(deliveryTag: message.DeliveryTag, multiple: false);
+							if (await HandleReceivedMessageAsync(content, phoneNumber))
+							{
+								channel.BasicAck(deliveryTag: message.DeliveryTag, multiple: false);
+							}
+							else
+							{
+								await MoveBackToQueue(channel, message, content);
+							}
 						}
 					};
 
 				channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
 			}
 			await Task.CompletedTask;
+		}
+
+		private async Task MoveBackToQueue(IModel channel, BasicDeliverEventArgs message, string content)
+		{
+			Console.WriteLine($"[-] CANT PROCESS {content} consumer! No available numbers.");
+			channel.BasicNack(deliveryTag: message.DeliveryTag, multiple: false, true);
+			await _statisticRepository.SaveStatisticAsync(_dispatcher.GetConcurentDictionaryStats());
 		}
 
 		public override void Dispose()
@@ -92,9 +109,9 @@ namespace SMSGatekeeper
 			base.Dispose();
 		}
 
-		private async Task HandleReceivedMessageAsync(string content, string phoneNumber)
+		private async Task<bool> HandleReceivedMessageAsync(string content, string phoneNumber)
 		{
-			await _dispatcher.HandleReceivedMessageAsync(content, phoneNumber);
+			return await _dispatcher.HandleReceivedMessageAsync(content, phoneNumber);
 		}
 	}
 }

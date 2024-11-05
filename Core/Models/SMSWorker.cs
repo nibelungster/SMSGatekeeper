@@ -12,7 +12,7 @@ namespace Core.Models
 		public async Task Send(string phoneNumber, string content)
 		{
 			Console.WriteLine($"Sending from {phoneNumber} content {content}...{DateTime.Now}");
-			await Task.Delay(3000);
+			await Task.Delay(2000);
 		}
 	}
 }
