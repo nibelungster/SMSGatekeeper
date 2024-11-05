@@ -34,8 +34,6 @@ How to start:
    <img width="413" alt="image" src="https://github.com/user-attachments/assets/1582fa64-626d-42f3-90d6-3838794bc1ab">
 
 
- 
-
 
 How it works:
 
@@ -45,3 +43,12 @@ The dispatcher calls an factory to crete worker to send SMS. When worker is done
 "Please release this number - it is avalible for use now".
 
  <img width="541" alt="image" src="https://github.com/user-attachments/assets/3ad80277-e3d5-416d-9fb8-28ae7350a8dc">
+
+
+ How to scale it:
+
+ 1. Approach number one - we can increase the number of consumers and add some queues in RabbitMQ
+ 2. Approach number two - cover our servicen in Docker conatiner and depends on performance we could start new one. ATTENTION! If follow this approach it will be necessary to move dispatcher in dedicated conatiner to share data with several services containers. It should look like this
+
+    <img width="349" alt="image" src="https://github.com/user-attachments/assets/c34c24fb-5d1e-48de-a63e-d5a5f553e684">
+ 
