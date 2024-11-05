@@ -17,8 +17,11 @@ How to start:
    <img width="867" alt="image" src="https://github.com/user-attachments/assets/8e139f84-a960-4a7d-8b2e-2286acb55b1c">
 
 
+How it works:
 
-
-
+SMSQueueConsumerService is an background self hosted service where we register all our consumers for RabbitMQ queue.
+The heart of the system is an dispather(SMsDispatcher) where we inspect, count and manage all telephone numbers available for sending.
+The dispatcher calls an factory to crete worker to send SMS. When worker is done with his job it receives callback and tells to the dispatcher:
+"Please release this number - it is avalible for use now".
 
  <img width="541" alt="image" src="https://github.com/user-attachments/assets/3ad80277-e3d5-416d-9fb8-28ae7350a8dc">
