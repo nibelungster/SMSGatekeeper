@@ -1,12 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using System.Diagnostics;
-using System.Threading.Channels;
-using Microsoft.AspNetCore.Connections;
 using Gatekeeper.Core.Interfaces;
 using Core.Interfaces;
-using Core.Models;
 
 namespace SMSGatekeeper
 {
@@ -16,11 +12,10 @@ namespace SMSGatekeeper
 		private readonly IDispatchConfiguration _configuration;
 		private ConnectionFactory _connectionFactory;
 		private IConnection _connection;
-		private IModel _channel;
 		private IDispatcher _dispatcher;
 		private IStatisticRepository _statisticRepository;
-		private string _queueName;
 		public IServiceProvider Services { get; }
+
 
 		public SMSQueueConsumerService(ILoggerFactory loggerFactory, IServiceProvider service, IDispatchConfiguration configuration)
 		{
@@ -49,13 +44,15 @@ namespace SMSGatekeeper
 			};
 			_connection = factory.CreateConnection();
 
-			_logger.LogInformation($"Queue [{_queueName}] is waiting for messages.");
-
 			return base.StartAsync(cancellationToken);
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
+			//It is simplest probably wey to scale the application - just increse several async consumers.
+			//Also there is additional option just to ad new queue and make a half of consumers listen
+			//first one and a second half - listen second one. And don;t forget to change ExchangeType from Topic!
+			//Another ways how to scale application I will describe in README file. 
 			for (int i = 1; i < _configuration.ConcurrentConsumers; i++)
 			{
 				var channel = _connection.CreateModel();
@@ -97,8 +94,16 @@ namespace SMSGatekeeper
 			await Task.CompletedTask;
 		}
 
+		/// <summary>
+		/// Method moves message back to queue
+		/// </summary>
+		/// <param name="channel"></param>
+		/// <param name="message"></param>
+		/// <param name="content"></param>
+		/// <returns></returns>
 		private async Task MoveBackToQueue(IModel channel, BasicDeliverEventArgs message, string content)
 		{
+			///We do it if there is no free available number to send the message.
 			Console.WriteLine($"[-] CANT PROCESS {content} consumer! No available numbers.");
 			channel.BasicNack(deliveryTag: message.DeliveryTag, multiple: false, true);
 			await _statisticRepository.SaveStatisticAsync(_dispatcher.GetDispatcherStatisctic());
