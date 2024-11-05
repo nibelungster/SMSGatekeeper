@@ -51,4 +51,10 @@ The dispatcher calls an factory to crete worker to send SMS. When worker is done
  2. Approach number two - cover our servicen in Docker conatiner and depends on performance we could start new one. ATTENTION! If follow this approach it will be necessary to move dispatcher in dedicated conatiner to share data with several services containers. It should look like this
 
     <img width="349" alt="image" src="https://github.com/user-attachments/assets/c34c24fb-5d1e-48de-a63e-d5a5f553e684">
- 
+
+
+What still in progress:
+
+1. Start service in conatiner - not sure will be ready till tomorrow noon
+2. Web interface for statistic (bonus project) - not sure will be ready till tomorrow noon
+3. Cover all this stuff with tests... 
