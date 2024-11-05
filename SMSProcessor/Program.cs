@@ -1,10 +1,8 @@
 using Core.Interfaces;
 using Core.Models;
 using Gatekeeper.Core.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Binder;
-using SMSGatekeeper;
 using SMSProcessor.Repositories;
+using SMSProcessor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

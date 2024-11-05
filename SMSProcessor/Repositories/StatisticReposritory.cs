@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
-using Newtonsoft.Json;
-using static System.Net.Mime.MediaTypeNames;
+﻿using Newtonsoft.Json;
 using System.Text;
 using Core.Interfaces;
 
