@@ -8,23 +8,26 @@ namespace SMSGatekeeper
 {
 	public class SMSDidspatcher : IDispatcher
 	{
-		private readonly List<string> _phoneNumbers = new List<string>() { "+1234", "+4321", "+3333", "+4444", "+6666"};
 		private ConcurrentDictionary<string, int> _numbersStatisctic;
-		const int _limitPerNumber = 5;
-		const int _limitPerAccount = 20;
+		private readonly int _limitPerNumber;
+		private readonly int _limitPerAccount;
 		private ISMSProcessorFactory _factory;
 		private IStatisticRepository _statisticRepository;
+		private IDispatchConfiguration _dispatchConfiguration;
 		static readonly object _collectionLock = new object();
 
-		public SMSDidspatcher(ISMSProcessorFactory factory, IStatisticRepository statisticRepository)
+		public SMSDidspatcher(ISMSProcessorFactory factory, IStatisticRepository statisticRepository, IDispatchConfiguration dispatchConfiguration)
 		{
 			_numbersStatisctic = new ConcurrentDictionary<string, int>();
-			foreach (var number in _phoneNumbers)
+			_factory = factory;
+			_statisticRepository = statisticRepository;
+			_dispatchConfiguration = dispatchConfiguration;
+			foreach (var number in _dispatchConfiguration.PhoneNumbers)
 			{
 				_numbersStatisctic.TryAdd(number, 0);
 			}
-			_factory = factory;
-			_statisticRepository = statisticRepository;
+			_limitPerNumber = _dispatchConfiguration.LimitPerNumber;
+			_limitPerAccount = _dispatchConfiguration.LimitPerAccount;
 		}
 
 		public string GetAvailableNumber()
@@ -51,23 +54,23 @@ namespace SMSGatekeeper
 			get { return _numbersStatisctic.Skip(0).Sum(x => x.Value); }
 		}
 
-		public ConcurrentDictionary<string, int> GetConcurentDictionaryStats()
-		{ 
+		public ConcurrentDictionary<string, int> GetDispatcherStatisctic()
+		{
 			return _numbersStatisctic;
 		}
 
-		internal bool AddNumberInUse(string phoneNumber)
+		internal bool IncreasePhoneNumberCount(string phoneNumber)
 		{
 			int currentValue = 0;
+			Console.WriteLine($"Add number {phoneNumber}...{DateTime.Now}");
 			lock (_collectionLock)
 			{
 				if (GetCurrentNumbersInUse == _limitPerAccount)
 					return false;
 
-				if (_numbersStatisctic.TryGetValue(phoneNumber, out currentValue) && currentValue == _limitPerNumber) 
+				if (_numbersStatisctic.TryGetValue(phoneNumber, out currentValue) && currentValue == _limitPerNumber)
 					return false;
 
-				Console.WriteLine($"Add number {phoneNumber}...{DateTime.Now}");
 				_numbersStatisctic.AddOrUpdate(
 					phoneNumber,
 					1,
@@ -77,7 +80,7 @@ namespace SMSGatekeeper
 			return true;
 		}
 
-		internal void RemoveNumberInUse(string phoneNumber)
+		internal void DecreasePhoneNumberCount(string phoneNumber)
 		{
 			Console.WriteLine($"Remove number {phoneNumber}...{DateTime.Now}");
 			lock (_collectionLock)
@@ -95,7 +98,7 @@ namespace SMSGatekeeper
 			{
 				if (GetCurrentNumbersInUse == _limitPerAccount)
 					return false;
-				if (!AddNumberInUse(phoneNumber))
+				if (!IncreasePhoneNumberCount(phoneNumber))
 					return false;
 			}
 			var message = System.Text.Json.JsonSerializer.Deserialize<Message>(content);
@@ -104,7 +107,7 @@ namespace SMSGatekeeper
 			await t.ContinueWith((t1) =>
 			{
 				Console.WriteLine($"Succesfully sent from {phoneNumber} content {message?.Text} from sender {message?.Sender}...{DateTime.Now}. Status: {t1.Status}");
-				RemoveNumberInUse(phoneNumber);
+				DecreasePhoneNumberCount(phoneNumber);
 			});
 			return true;
 		}

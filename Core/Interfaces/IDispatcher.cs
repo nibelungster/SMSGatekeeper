@@ -12,6 +12,6 @@ namespace Gatekeeper.Core.Interfaces
 		public Task<bool> HandleReceivedMessageAsync(string content, string phoneNumber);
 		public string GetAvailableNumber();
 
-		public ConcurrentDictionary<string, int> GetConcurentDictionaryStats();
+		public ConcurrentDictionary<string, int> GetDispatcherStatisctic();
 	}
 }

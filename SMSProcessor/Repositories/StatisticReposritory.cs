@@ -21,12 +21,8 @@ namespace SMSProcessor.Repositories
 
 		public async Task GetStatisticAsync(IDictionary<string, int> statiscticDictionary)
 		{
-			String json = JsonConvert.SerializeObject(statiscticDictionary, Newtonsoft.Json.Formatting.Indented);
-			using (FileStream file = new FileStream("./Statistic.json", FileMode.Append, FileAccess.Write, FileShare.Read))
-			using (StreamWriter writer = new StreamWriter(file, Encoding.Unicode))
-			{
-				await writer.WriteAsync(json);
-			}
+			var text = await File.ReadAllTextAsync("./Files/Statistic.json");
+			var values = JsonConvert.DeserializeObject<IList<Dictionary<string, string>>>(text);
 		}
 	}
 }

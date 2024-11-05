@@ -13,6 +13,7 @@ namespace SMSGatekeeper
 	public class SMSQueueConsumerService : BackgroundService
 	{
 		private readonly ILogger<SMSQueueConsumerService> _logger;
+		private readonly IDispatchConfiguration _configuration;
 		private ConnectionFactory _connectionFactory;
 		private IConnection _connection;
 		private IModel _channel;
@@ -21,7 +22,7 @@ namespace SMSGatekeeper
 		private string _queueName;
 		public IServiceProvider Services { get; }
 
-		public SMSQueueConsumerService(ILoggerFactory loggerFactory, IServiceProvider service)
+		public SMSQueueConsumerService(ILoggerFactory loggerFactory, IServiceProvider service, IDispatchConfiguration configuration)
 		{
 			Services = service;
 			using (var scope = Services.CreateScope())
@@ -34,6 +35,7 @@ namespace SMSGatekeeper
 						.GetRequiredService<IStatisticRepository>();
 			}
 			_logger = loggerFactory.CreateLogger<SMSQueueConsumerService>();
+			_configuration = configuration;
 		}
 
 		public override Task StartAsync(CancellationToken cancellationToken)
@@ -54,7 +56,7 @@ namespace SMSGatekeeper
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			for (int i = 1; i < 20; i++)
+			for (int i = 1; i < _configuration.ConcurrentConsumers; i++)
 			{
 				var channel = _connection.CreateModel();
 
@@ -99,7 +101,7 @@ namespace SMSGatekeeper
 		{
 			Console.WriteLine($"[-] CANT PROCESS {content} consumer! No available numbers.");
 			channel.BasicNack(deliveryTag: message.DeliveryTag, multiple: false, true);
-			await _statisticRepository.SaveStatisticAsync(_dispatcher.GetConcurentDictionaryStats());
+			await _statisticRepository.SaveStatisticAsync(_dispatcher.GetDispatcherStatisctic());
 		}
 
 		public override void Dispose()
