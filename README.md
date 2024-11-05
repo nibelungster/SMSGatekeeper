@@ -2,7 +2,7 @@
 
 How to start: 
 
-1. Donload and build solution
+1. Download and build solution
 2. You are supposed to have an RabbitMQ installed in you PC (as service or docker conatiner)
    
 <img width="752" alt="image" src="https://github.com/user-attachments/assets/217cb545-c2eb-487e-ad1a-bb068c4e6632">
@@ -15,11 +15,26 @@ How to start:
 7. Then navigate back to the SMSProcessor console. It should looks like this
    
    <img width="867" alt="image" src="https://github.com/user-attachments/assets/8e139f84-a960-4a7d-8b2e-2286acb55b1c">
+   
+8. If there are now available slots for sending you should be experienced with this stuff
+
+   <img width="505" alt="image" src="https://github.com/user-attachments/assets/c0830daf-15a3-4b0e-bbab-5d5dd9bacb52">
+
+   And small statistic file appers in Files folder (I know it looks a bit uncompleted - sorry about that :))
+
+   <img width="343" alt="image" src="https://github.com/user-attachments/assets/e3b2e70d-b149-4e2f-8894-7d90568653e5">
+
+   3 + 3 + 3 + 2 + 2 == 13 and we have limit in our appsettings file
+
+   <img width="413" alt="image" src="https://github.com/user-attachments/assets/1582fa64-626d-42f3-90d6-3838794bc1ab">
+
+
+ 
 
 
 How it works:
 
-SMSQueueConsumerService is an background self hosted service where we register all our consumers for RabbitMQ queue.
+   SMSQueueConsumerService is an background self hosted service where we register all our consumers for RabbitMQ queue.
 The heart of the system is an dispather(SMsDispatcher) where we inspect, count and manage all telephone numbers available for sending.
 The dispatcher calls an factory to crete worker to send SMS. When worker is done with his job it receives callback and tells to the dispatcher:
 "Please release this number - it is avalible for use now".
