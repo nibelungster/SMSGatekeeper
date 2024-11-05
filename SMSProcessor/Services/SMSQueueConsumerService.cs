@@ -3,6 +3,7 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using Gatekeeper.Core.Interfaces;
 using Core.Interfaces;
+using System.Data;
 
 namespace SMSProcessor.Services
 {
@@ -15,6 +16,7 @@ namespace SMSProcessor.Services
         private IDispatcher _dispatcher;
         private IStatisticRepository _statisticRepository;
         public IServiceProvider Services { get; }
+        private IEnumerable<IModel> _chanels;
 
 
         public SMSQueueConsumerService(ILoggerFactory loggerFactory, IServiceProvider service, IDispatchConfiguration configuration)
@@ -53,9 +55,11 @@ namespace SMSProcessor.Services
             //Also there is additional option just to ad new queue and make a half of consumers listen
             //first one and a second half - listen second one. And don;t forget to change ExchangeType from Topic!
             //Another ways how to scale application I will describe in README file. 
+            _chanels = new List<IModel>();
             for (int i = 1; i < _configuration.ConcurrentConsumers; i++)
             {
                 var channel = _connection.CreateModel();
+                _chanels.Append(channel);
 
                 channel.ExchangeDeclare(exchange: "logs", type: ExchangeType.Topic);
                 var queueName = channel.QueueDeclare("test1", durable: true, autoDelete: false, exclusive: false);
@@ -111,7 +115,8 @@ namespace SMSProcessor.Services
 
         public override void Dispose()
         {
-            //_channel.Dispose();
+            foreach (var chanel in _chanels)
+            {  chanel.Dispose(); }
             _connection.Close();
             base.Dispose();
         }
