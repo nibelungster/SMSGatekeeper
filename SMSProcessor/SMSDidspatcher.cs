@@ -8,6 +8,7 @@ namespace SMSGatekeeper
 {
 	public class SMSDidspatcher : IDispatcher
 	{
+		//Probably common dictionary could be ehough but I wanted to play with this one :)
 		private ConcurrentDictionary<string, int> _numbersStatisctic;
 		private readonly int _limitPerNumber;
 		private readonly int _limitPerAccount;
