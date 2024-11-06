@@ -54,18 +54,24 @@ The dispatcher calls an factory to crete worker to send SMS. When worker is done
 
 How to start from container:
 
-1.Build docker file
+1. Use next configuration for ConnectionFactory in code (localhost --> host.docker.internal)
+   (I wandet to automate it but not enoght time for this...)
+
+   <img width="431" alt="image" src="https://github.com/user-attachments/assets/c07721e6-9c0a-4bb0-975a-bfcba3d1eacf">
+
+2.Build docker file
 
 docker build -t smsprocessor1 -f SMSProcessor/dockerfile .
 
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/0d075e97-cd1d-4d16-b156-b54ea8d1f4d0">
 
-2. Start new container from creted image
+3. Start new container from created image
    
 <img width="831" alt="image" src="https://github.com/user-attachments/assets/885bfb17-278c-4aa9-a804-02f510fe08d4">
 
-3. Run FakeSenders and abserver CPU usage is higher than previous
+4. Run FakeSenders and abserver CPU usage is higher than previous
 
+<img width="745" alt="image" src="https://github.com/user-attachments/assets/5ed7b0b1-4f15-4dc3-87da-60dd57987094">
 
 
 What still in progress:
