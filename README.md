@@ -52,9 +52,23 @@ The dispatcher calls an factory to crete worker to send SMS. When worker is done
 
     <img width="349" alt="image" src="https://github.com/user-attachments/assets/c34c24fb-5d1e-48de-a63e-d5a5f553e684">
 
+How to start from container:
+
+1.Build docker file
+
+docker build -t smsprocessor1 -f SMSProcessor/dockerfile .
+
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/0d075e97-cd1d-4d16-b156-b54ea8d1f4d0">
+
+2. Start new container from creted image
+   
+<img width="831" alt="image" src="https://github.com/user-attachments/assets/885bfb17-278c-4aa9-a804-02f510fe08d4">
+
+3. Run FakeSenders and abserver CPU usage is higher than previous
+
+
 
 What still in progress:
 
-1. Start service in conatiner - not sure will be ready till tomorrow noon
-2. Web interface for statistic (bonus project) - not sure will be ready till tomorrow noon
-3. Cover all this stuff with tests... 
+1. Web interface for statistic (bonus project) - not sure will be ready till tomorrow noon
+2. Cover all this stuff with tests... 
