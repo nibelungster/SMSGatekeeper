@@ -115,9 +115,12 @@ namespace SMSProcessor.Services
 
         public override void Dispose()
         {
-            foreach (var chanel in _chanels)
-            {  chanel.Dispose(); }
-            _connection.Close();
+            if (_chanels != null && _chanels.Any())
+            {
+                foreach (var chanel in _chanels)
+                { chanel.Dispose(); }
+            }
+            _connection?.Close();
             base.Dispose();
         }
 
